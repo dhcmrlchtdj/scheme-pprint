@@ -29,6 +29,6 @@ let rec to_string (exp:expression) : string =
                            | _ -> f "%s %s" a b)
                      "" param)
                 (to_string exp)
-        | ExprIf (i,t,e) -> f "(if %s %s %s)" (to_string i) (to_string t) (to_string e)
+        | ExprIf (i, t, e) -> f "(if %s %s %s)" (to_string i) (to_string t) (to_string e)
         | ExprSet (v, e) -> f "(set! %s %s)" v (to_string e)
         | ExprCallCC e -> f "(call/cc %s)" (to_string e)

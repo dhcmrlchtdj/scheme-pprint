@@ -5,15 +5,10 @@ clean:
 	@ocamlbuild -clean
 
 OCB_FLAGS := -tag 'color(always)' \
-	-tag 'warn(@A-4-27-60-39)' \
-	-tag safe_string \
-	-tag strict_sequence \
-	-tag strict_formats \
-	-tag short_paths \
-	-tag keep_locs \
-	-use-menhir \
-	-use-ocamlfind \
-	-pkgs 'str'
+	-tag 'warn(@A-4-27-60-39-33)' \
+	-tags safe_string,strict_sequence,strict_formats,short_paths,keep_locs \
+	-use-menhir -tag explain \
+	-use-ocamlfind -pkgs 'str'
 OCB := ocamlbuild $(OCB_FLAGS)
 
 main:
