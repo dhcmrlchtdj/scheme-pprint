@@ -7,7 +7,7 @@ end
 open Ast
 
 
-let eval (ast:expression) =
+let eval (_:expression) =
     0
 
 let print = print_int

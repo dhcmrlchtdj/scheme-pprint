@@ -12,8 +12,8 @@ clean:
 
 scheme_targets := $(patsubst %.ml,%,$(wildcard src/scheme/*.ml))
 $(scheme_targets):
-	$(OCB) $@.inferred.mli
+	@$(OCB) $@.inferred.mli
 scheme: $(scheme_targets)
-	$(OCB) src/scheme/scheme.byte
+	@$(OCB) src/scheme/scheme.byte
 
 .PHONY: main clean scheme $(scheme_targets)
