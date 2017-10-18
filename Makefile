@@ -5,15 +5,15 @@ OCB_FLAGS := -tag 'color(always)' \
 	-use-ocamlfind -pkgs 'str'
 OCB := ocamlbuild $(OCB_FLAGS)
 
-main: scheme
+mlis := $(patsubst %.ml,%,$(wildcard src/*.ml))
+
+main: $(mlis)
+	@$(OCB) src/main.byte
+
+$(mlis):
+	@$(OCB) $@.inferred.mli
 
 clean:
 	@ocamlbuild -clean
 
-scheme_targets := $(patsubst %.ml,%,$(wildcard src/scheme/*.ml))
-$(scheme_targets):
-	@$(OCB) $@.inferred.mli
-scheme: $(scheme_targets)
-	@$(OCB) src/scheme/scheme.byte
-
-.PHONY: main clean scheme $(scheme_targets)
+.PHONY: main clean $(mlis)
