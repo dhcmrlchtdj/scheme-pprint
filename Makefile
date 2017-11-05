@@ -1,8 +1,8 @@
-OCB_FLAGS := -tag 'color(always)' \
-	-tag 'warn(@A-4-27-60-39-33)' \
+OCB_FLAGS := \
+	-tag 'color(always)' \
 	-tags safe_string,strict_sequence,strict_formats,short_paths,keep_locs \
-	-use-menhir -tag explain \
-	-use-ocamlfind -pkgs 'str'
+	-use-ocamlfind -pkgs 'str,ppx_deriving.std' \
+	-tags 'warn(+a-4),warn_error(-a+31)'
 OCB := ocamlbuild $(OCB_FLAGS)
 
 mlis := $(patsubst %.ml,%,$(wildcard src/*.ml))

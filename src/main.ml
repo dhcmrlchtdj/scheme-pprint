@@ -1,5 +1,5 @@
 let () =
-    let tokens = Lexer.scan () in
-    let ast = Parser.parse tokens in
-    let value = Eval.eval ast in
-    Eval.print value
+    let s = "(   fn 123.13.)" in
+    let exp = Parser.parse s in
+    print_endline (Parser.to_string exp);
+    ()
