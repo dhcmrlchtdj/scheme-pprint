@@ -1,4 +1,4 @@
 S src/**
 B _build/**
 PKG ppx_deriving.std
-FLG -w @A-4 -keep-locs -safe-string -short-paths -strict-formats -strict-sequence
+FLG -w +a-4 -safe-string -short-paths -strict-sequence -keep-locs -keep-docs -principal
