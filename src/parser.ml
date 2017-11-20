@@ -1,11 +1,4 @@
-type datum =
-    | Nil
-    | Bool of bool
-    | Sym of string
-    | Str of string
-    | Num of float
-    | Lst of datum list
-[@@deriving show]
+open Ast
 
 let explode (s:string) : char list =
     let rec exp i l =
@@ -13,10 +6,6 @@ let explode (s:string) : char list =
         then l
         else exp (i - 1) (s.[i] :: l) in
     exp (String.length s - 1) []
-
-let rec trim_space = function
-    | ' '::t -> trim_space t
-    | x -> x
 
 let rec is_digit = function
     | '0'..'9' -> true
@@ -38,6 +27,14 @@ and is_subsequent = function
     | c when is_initial c -> true
     | c when is_digit c -> true
     | _ -> false
+and is_whitespace = function
+    | ' ' | '\t' | '\r' | '\n' -> true
+    | _ -> false
+
+
+let rec trim_space = function
+    | h::t when is_whitespace h -> trim_space t
+    | x -> x
 
 
 type parsing = (datum * (char list), string) result [@@deriving show]
@@ -48,8 +45,8 @@ let bind_parsing f r =
         | Error _ -> r
 let checker label = bind_parsing (fun (d, cs) ->
         match cs with
-            | [] | ')'::_  -> Ok (d, cs)
-            | ' '::t -> Ok (d, trim_space t)
+            | [] | ')'::_ | ']'::_ -> Ok (d, cs)
+            | h::t when is_whitespace h -> Ok (d, trim_space t)
             | h::_ -> Error (Printf.sprintf "[%s] unexpected char '%c'" label h)
     )
 
@@ -59,7 +56,8 @@ let parse (src:string) : datum =
         let cs = trim_space chars in
         match cs with
             | [] -> Ok (Nil, [])
-            | '('::t -> parse_list t
+            | '('::t -> parse_list ')' t
+            | '['::t -> parse_list ']' t
             | '\''::t -> parse_quote t
             | '#'::t -> parse_bool t
             | '"'::t -> parse_str t
@@ -123,11 +121,11 @@ let parse (src:string) : datum =
         in
         aux [] chars
         |> checker "sym"
-    and parse_list chars =
+    and parse_list m chars =
         let rec aux acc cs =
             match cs with
                 | [] -> Error "list"
-                | ')'::t -> Ok (Lst (List.rev acc), t)
+                | h::t when h = m -> Ok (Lst (List.rev acc), t)
                 | _ ->
                     (match parse_any cs with
                         | Ok (_, []) -> Error "expect ), got EOF"
@@ -140,6 +138,3 @@ let parse (src:string) : datum =
         | Ok (exp, []) -> exp
         | Ok (_, h::_) -> failwith ("expect EOF, got " ^ (Char.escaped h))
         | Error msg -> failwith msg
-
-let to_string (exp:datum) : string =
-    show_datum exp
