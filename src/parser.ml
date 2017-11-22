@@ -1,11 +1,6 @@
 open Ast
 
-let explode (s:string) : char list =
-    let rec exp i l =
-        if i < 0
-        then l
-        else exp (i - 1) (s.[i] :: l) in
-    exp (String.length s - 1) []
+let explode = BatString.explode
 
 let rec is_digit = function
     | '0'..'9' -> true

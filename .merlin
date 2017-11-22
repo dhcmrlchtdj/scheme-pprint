@@ -1,4 +1,6 @@
 S src/**
 B _build/**
+FLG -safe-string -short-paths -strict-sequence -keep-locs -keep-docs -principal
+FLG -w +a-4
 PKG ppx_deriving.std
-FLG -w +a-4 -safe-string -short-paths -strict-sequence -keep-locs -keep-docs -principal
+PKG batteries

@@ -1,7 +1,9 @@
 OCB_FLAGS := \
 	-tag 'color(always)' \
 	-tags safe_string,short_paths,strict_sequence,keep_locs,keep_docs,principal \
-	-use-ocamlfind -pkgs 'str,ppx_deriving.std' \
+	-use-ocamlfind \
+	-pkg ppx_deriving.std \
+	-pkg batteries \
 	-tags 'warn(+a-4),warn_error(-a+31)'
 OCB := ocamlbuild $(OCB_FLAGS)
 
