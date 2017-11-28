@@ -1,16 +1,13 @@
 open Ast
 
 let explode = BatString.explode
+let is_digit = BatChar.is_digit
+let is_whitespace = BatChar.is_whitespace
+let is_letter = BatChar.is_letter
 
-let rec is_digit = function
-    | '0'..'9' -> true
-    | _ -> false
-and is_num = function
+let rec is_num = function
     | '.' -> true
     | h when is_digit h -> true
-    | _ -> false
-and is_letter = function
-    | 'a'..'z' | 'A'..'Z' -> true
     | _ -> false
 and is_initial = function
     | '.' | '+' | '-' | '@'
@@ -21,9 +18,6 @@ and is_initial = function
 and is_subsequent = function
     | c when is_initial c -> true
     | c when is_digit c -> true
-    | _ -> false
-and is_whitespace = function
-    | ' ' | '\t' | '\r' | '\n' -> true
     | _ -> false
 
 

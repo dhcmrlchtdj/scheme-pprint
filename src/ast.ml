@@ -1,3 +1,5 @@
+module P = Printf
+
 type datum =
     | Nil
     | Bool of bool
@@ -7,12 +9,7 @@ type datum =
     | Lst of datum list
 [@@deriving show]
 
-
-let dump (exp:datum) : string =
-    show_datum exp
-
-
-module P = Printf
+let dump (exp: datum) : string = show_datum exp
 
 let rec to_string = function
     | Nil -> ""

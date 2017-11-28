@@ -6,6 +6,7 @@ let pp (ss: string) : unit =
     P.printf "--------input\n%S\n" s ;
     P.printf "--------oneline\n%s\n" (Ast.to_string exp) ;
     P.printf "--------dump\n%s\n" (Ast.dump exp) ;
+    P.printf "--------pretty\n%s\n" (Pretty.print exp) ;
     ()
 
 
