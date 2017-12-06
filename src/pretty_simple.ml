@@ -34,7 +34,7 @@ let rec from_datum = function
             |> List.flatten |> List.map add_indent |> fun x -> Concat x
         in
         let doc = Concat [Text "("; sub; Text ")"] in
-        Concat (simplify doc)
+        Concat (simplify doc) |> split_by_line
 
 
 and add_indent = function
@@ -47,6 +47,13 @@ and add_indent = function
 and simplify = function
     | Concat doc -> doc |> List.map simplify |> List.flatten
     | x -> [x]
+
+
+and split_by_line = function
+    | Concat d ->
+        d |> List.group (fun l _ -> match l with Newline -> -1 | _ -> 0)
+        |> List.map (fun x -> Concat x) |> fun x -> Concat x
+    | x -> x
 
 
 let print (exp: datum) : string = exp |> from_datum |> to_string

@@ -8,7 +8,7 @@ let pp (ss: string) : unit =
     P.printf "--------oneline\n%s\n" (Ast.to_string exp) ;
     P.printf "--------dump\n%s\n" (Ast.dump exp) ;
     P.printf "--------pretty_simple\n%s\n" (Pretty_simple.print exp) ;
-    P.printf "--------pretty\n%s\n" (Pretty.print exp) ;
+    P.printf "--------pretty\n%s\n" (Pretty.print 80 exp) ;
     ()
 
 
