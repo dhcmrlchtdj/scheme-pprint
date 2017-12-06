@@ -18,7 +18,17 @@ let rec to_string width = function
         let s = to_string_group d in
         let len = String.length s in
         if len <= width then s else to_string width d
-    | Concat ds -> List.map (to_string width) ds |> String.concat ""
+    | Concat ds ->
+        let _, dss =
+            List.fold_left
+                (fun (w, prev) next ->
+                     let s = to_string w next in
+                     let len = String.length s in
+                     let r = match next with Newline i -> width - i | _ -> w - len in
+                     (r, s :: prev))
+                (width, []) ds
+        in
+        dss |> List.rev |> String.concat ""
 
 
 and to_string_group = function
@@ -41,8 +51,8 @@ let rec from_datum = function
             doc |> List.mapi (fun i x -> if i = len then [x] else [x; Newline 0])
             |> List.flatten |> List.map add_indent |> fun x -> Concat x
         in
-        let doc = Concat [Text "("; sub; Text ")"] in
-        Group doc
+        let doc = Concat [Text "("; sub; Text ")"] |> simplify in
+        Group (Concat doc)
 
 
 and add_indent = function
@@ -52,6 +62,13 @@ and add_indent = function
     | Text s -> Text s
 
 
+and simplify = function
+    | Concat doc -> doc |> List.map simplify |> List.flatten
+    | x -> [x]
+
+
 let print (width: int) (exp: datum) : string =
     exp |> from_datum |> to_string width
 
+
+(* exp |> from_datum |> dump *)
