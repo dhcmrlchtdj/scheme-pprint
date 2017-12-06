@@ -3,7 +3,7 @@ open Ast
 module P = Printf
 
 type doc =
-    | Group of int option * doc list
+    | Group of doc
     | Concat of doc list
     | Newline
     | Indent of int
@@ -13,7 +13,7 @@ type doc =
 let dump (exp: doc) : string = show_doc exp
 
 let rec to_string width = function
-    | Group (i, doc) -> List.map (to_string width) doc |> String.concat ""
+    | Group doc -> to_string width doc
     | Concat doc -> List.map (to_string width) doc |> String.concat ""
     | Newline -> "\n"
     | Indent i -> String.repeat " " i
@@ -40,7 +40,7 @@ let rec from_datum = function
 
 
 and add_indent = function
-    | Group (i, doc) -> doc |> List.map add_indent |> fun x -> Group (i, x)
+    | Group doc -> add_indent doc
     | Concat doc -> doc |> List.map add_indent |> fun x -> Concat x
     | Newline -> Newline
     | Indent i -> Indent (i + 4)
@@ -52,4 +52,5 @@ and simplify = function
     | x -> [x]
 
 
-let print (width: int) (exp: datum) : string = exp |> from_datum |> dump
+let print (width: int) (exp: datum) : string =
+    exp |> from_datum |> to_string width
