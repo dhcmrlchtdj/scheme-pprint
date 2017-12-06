@@ -3,6 +3,7 @@
  * https://github.com/prettier/prettier-printer
 *)
 
+open Batteries
 open Ast
 module P = Printf
 
@@ -18,11 +19,11 @@ let dump (exp: doc) : string = show_doc exp
 let rec to_string = function
     | Concat doc -> List.map to_string doc |> String.concat ""
     | Newline -> "\n"
-    | Indent i -> BatString.repeat " " i
+    | Indent i -> String.repeat " " i
     | Text s -> s
 
 
-let rec from_datum = function
+let rec simple_from_datum = function
     | Nil -> Text ""
     | Bool b -> Text (P.sprintf "%B" b)
     | Sym s -> Text (P.sprintf "%s" s)
@@ -30,25 +31,24 @@ let rec from_datum = function
     | Num f -> Text (P.sprintf "%F" f)
     | Lst d ->
         let sub =
-            let x = d |> List.map from_datum in
+            let x = d |> List.map simple_from_datum in
             let len = List.length x - 1 in
             x
             |> List.mapi (fun i x ->
                 if i = len then [x] else [x; Newline; Indent 0] )
-            |> List.flatten |> List.map add_indent
+            |> List.flatten |> List.map simple_add_indent |> fun x -> Concat x
         in
-        let sub2 = Concat sub in
-        Concat [Text "("; sub2; Text ")"]
+        Concat [Text "("; sub; Text ")"]
 
 
-and add_indent = function
-    | Concat doc -> doc |> List.map add_indent |> fun x -> Concat x
+and simple_add_indent = function
+    | Concat doc -> doc |> List.map simple_add_indent |> fun x -> Concat x
     | Newline -> Newline
     | Indent i -> Indent (i + 4)
     | Text s -> Text s
 
 
 let print (exp: datum) : string =
-    let d = from_datum exp in
+    let d = simple_from_datum exp in
     to_string d
 

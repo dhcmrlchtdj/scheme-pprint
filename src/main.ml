@@ -1,3 +1,4 @@
+open Batteries
 module P = Printf
 
 let pp (ss: string) : unit =
@@ -17,8 +18,9 @@ let () =
     let argv = Sys.argv |> Array.to_list |> List.tl in
     let aux = function
         | ["-h"] | ["--help"] -> usage ()
-        | ["-"] -> BatIO.read_all BatIO.stdin |> pp
-        | [file] -> BatFile.with_file_in file BatIO.read_all |> pp
+        | ["-"] -> IO.read_all IO.stdin |> pp
+        | [file] -> File.with_file_in file IO.read_all |> pp
         | [] | _ -> usage ()
     in
     aux argv
+
