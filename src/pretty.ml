@@ -5,19 +5,27 @@ module P = Printf
 type doc =
     | Group of doc
     | Concat of doc list
-    | Newline
-    | Indent of int
+    | Newline of int
     | Text of string
 [@@deriving show]
 
 let dump (exp: doc) : string = show_doc exp
 
 let rec to_string width = function
-    | Group doc -> to_string width doc
-    | Concat doc -> List.map (to_string width) doc |> String.concat ""
-    | Newline -> "\n"
-    | Indent i -> String.repeat " " i
     | Text s -> s
+    | Newline i -> P.sprintf "\n%s" (String.repeat " " i)
+    | Group d ->
+        let s = to_string_group d in
+        let len = String.length s in
+        if len <= width then s else to_string width d
+    | Concat ds -> List.map (to_string width) ds |> String.concat ""
+
+
+and to_string_group = function
+    | Text s -> s
+    | Newline _ -> " "
+    | Group d -> to_string_group d
+    | Concat ds -> List.map to_string_group ds |> String.concat ""
 
 
 let rec from_datum = function
@@ -30,27 +38,20 @@ let rec from_datum = function
         let sub =
             let doc = d |> List.map from_datum in
             let len = List.length doc - 1 in
-            doc
-            |> List.mapi (fun i x ->
-                if i = len then [x] else [x; Newline; Indent 0] )
+            doc |> List.mapi (fun i x -> if i = len then [x] else [x; Newline 0])
             |> List.flatten |> List.map add_indent |> fun x -> Concat x
         in
         let doc = Concat [Text "("; sub; Text ")"] in
-        Concat (simplify doc)
+        Group doc
 
 
 and add_indent = function
-    | Group doc -> add_indent doc
-    | Concat doc -> doc |> List.map add_indent |> fun x -> Concat x
-    | Newline -> Newline
-    | Indent i -> Indent (i + 4)
+    | Group d -> Group (add_indent d)
+    | Concat ds -> ds |> List.map add_indent |> fun x -> Concat x
+    | Newline i -> Newline (i + 4)
     | Text s -> Text s
-
-
-and simplify = function
-    | Concat doc -> doc |> List.map simplify |> List.flatten
-    | x -> [x]
 
 
 let print (width: int) (exp: datum) : string =
     exp |> from_datum |> to_string width
+
