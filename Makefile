@@ -12,6 +12,7 @@ mlis := $(patsubst %.ml,%,$(wildcard src/*.ml))
 test: main
 	echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY!)" | ./main.byte -
 	echo "(define (main) (define (print-usage) (display \"\\nUsage:\\n./prime.ss <number>\\n\\n\")) (define args (cdr (command-line))) (if (not (= 1. (length args))) (print-usage) (let ((nth (string->number (car args)))) (if (not nth) (print-usage) (begin (display (stream-ref primes nth)) (newline))))))" | ./main.byte -
+	echo "(define (stream-car s) (car (force s)))" | ./main.byte -
 
 main: $(mlis)
 	@$(OCB) src/main.byte

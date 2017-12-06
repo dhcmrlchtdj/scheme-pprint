@@ -128,13 +128,13 @@ let parse (src: string) : datum =
                 | _ ->
                     match parse_any cs with
                         | Ok (_, []) -> Bad "expect ), got EOF"
-        | Ok (exp, t) -> aux (exp :: acc) t
-        | Bad msg -> Bad msg
+                        | Ok (exp, t) -> aux (exp :: acc) t
+                        | Bad msg -> Bad msg
+        in
+        aux [] chars
     in
-    aux [] chars
-  in
-  match parse_any (explode src) with
-  | Ok (exp, []) -> exp
-  | Ok (_, h :: _) -> failwith ("expect EOF, got " ^ Char.escaped h)
-  | Bad msg -> failwith msg
+    match parse_any (explode src) with
+        | Ok (exp, []) -> exp
+        | Ok (_, h :: _) -> failwith ("expect EOF, got " ^ Char.escaped h)
+        | Bad msg -> failwith msg
 
