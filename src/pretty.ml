@@ -11,22 +11,21 @@ type doc =
 
 let dump (exp: doc) : string = show_doc exp
 
-let rec to_string width = function
+let rec to_string max_width used = function
     | Text s -> s
     | Newline i -> P.sprintf "\n%s" (String.repeat " " i)
     | Group d ->
         let s = to_string_group d in
         let len = String.length s in
-        if len <= width then s else to_string width d
+        if len + used <= max_width then s else to_string max_width used d
     | Concat ds ->
         let _, dss =
             List.fold_left
                 (fun (w, prev) next ->
-                     let s = to_string w next in
-                     let len = String.length s in
-                     let r = match next with Newline i -> width - i | _ -> w - len in
+                     let s = to_string max_width w next in
+                     let r = match next with Newline i -> i | _ -> used in
                      (r, s :: prev))
-                (width, []) ds
+                (used, []) ds
         in
         dss |> List.rev |> String.concat ""
 
@@ -68,7 +67,5 @@ and simplify = function
 
 
 let print (width: int) (exp: datum) : string =
-    exp |> from_datum |> to_string width
+    exp |> from_datum |> to_string width 0
 
-
-(* exp |> from_datum |> dump *)
