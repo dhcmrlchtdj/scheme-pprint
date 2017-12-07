@@ -28,7 +28,7 @@ let env_get env k = List.assoc k env
 
 and env_set env k v = (k, v) :: env
 
-let rec eval env = function
+let eval env = function
     | Nil -> Ok (env, RNil)
     | Bool b -> Ok (env, RBool b)
     | Sym k -> Ok (env, env_get env k)
