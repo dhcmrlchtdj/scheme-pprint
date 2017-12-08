@@ -5,10 +5,10 @@ let pp (ss: string) : unit =
     let s = ss |> String.trim in
     let exp = Parser.parse s in
     P.printf "--------input\n%S\n" s ;
-    P.printf "--------oneline\n%s\n" (Ast.to_string exp) ;
     P.printf "--------dump\n%s\n" (Ast.dump exp) ;
+    P.printf "--------oneline\n%s\n" (Ast.to_string exp) ;
     P.printf "--------pretty_simple\n%s\n" (Pretty_simple.print exp) ;
-    P.printf "--------pretty\n%s\n" (Pretty.print 80 exp) ;
+    P.printf "--------pretty\n%s\n" (Pretty.print 40 exp) ;
     print_newline ()
 
 

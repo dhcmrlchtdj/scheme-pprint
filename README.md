@@ -5,6 +5,9 @@
 ```
 $ make test
 
+--------input
+"(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY!)"
+
 --------dump
 (Ast.Lst
    [(Ast.Lst

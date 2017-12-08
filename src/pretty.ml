@@ -23,7 +23,9 @@ let rec to_string max_width used = function
             List.fold_left
                 (fun (w, prev) next ->
                      let s = to_string max_width w next in
-                     let r = match next with Newline i -> i | _ -> used in
+                     let r =
+                         match next with Newline i -> i | _ -> w + String.length s
+                     in
                      (r, s :: prev))
                 (used, []) ds
         in
