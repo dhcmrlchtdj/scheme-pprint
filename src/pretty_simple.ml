@@ -2,11 +2,7 @@ open Batteries
 open Ast
 module P = Printf
 
-type doc =
-    | Concat of doc list
-    | Newline
-    | Indent of int
-    | Text of string
+type doc = Concat of doc list | Newline | Indent of int | Text of string
 [@@deriving show]
 
 let dump (exp: doc) : string = show_doc exp
@@ -16,7 +12,6 @@ let rec to_string = function
     | Newline -> "\n"
     | Indent i -> String.repeat " " i
     | Text s -> s
-
 
 let rec from_datum = function
     | Nil -> Text ""
@@ -31,11 +26,12 @@ let rec from_datum = function
             doc
             |> List.mapi (fun i x ->
                 if i = len then [x] else [x; Newline; Indent 0] )
-            |> List.flatten |> List.map add_indent |> fun x -> Concat x
+            |> List.flatten
+            |> List.map add_indent
+            |> fun x -> Concat x
         in
         let doc = Concat [Text "("; sub; Text ")"] in
         Concat (simplify doc) |> split_by_line
-
 
 and add_indent = function
     | Concat doc -> doc |> List.map add_indent |> fun x -> Concat x
@@ -43,17 +39,16 @@ and add_indent = function
     | Indent i -> Indent (i + 4)
     | Text s -> Text s
 
-
 and simplify = function
     | Concat doc -> doc |> List.map simplify |> List.flatten
     | x -> [x]
 
-
 and split_by_line = function
     | Concat d ->
-        d |> List.group (fun l _ -> match l with Newline -> -1 | _ -> 0)
-        |> List.map (fun x -> Concat x) |> fun x -> Concat x
+        d
+        |> List.group (fun l _ -> match l with Newline -> -1 | _ -> 0)
+        |> List.map (fun x -> Concat x)
+        |> fun x -> Concat x
     | x -> x
-
 
 let print (exp: datum) : string = exp |> from_datum |> to_string

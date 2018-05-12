@@ -26,18 +26,16 @@ let rec to_string max_width used = function
                      let r =
                          match next with Newline i -> i | _ -> w + String.length s
                      in
-                     (r, s :: prev))
+                     (r, s :: prev) )
                 (used, []) ds
         in
         dss |> List.rev |> String.concat ""
-
 
 and to_string_group = function
     | Text s -> s
     | Newline _ -> " "
     | Group d -> to_string_group d
     | Concat ds -> List.map to_string_group ds |> String.concat ""
-
 
 let rec from_datum = function
     | Nil -> Text ""
@@ -49,12 +47,14 @@ let rec from_datum = function
         let sub =
             let doc = d |> List.map from_datum in
             let len = List.length doc - 1 in
-            doc |> List.mapi (fun i x -> if i = len then [x] else [x; Newline 0])
-            |> List.flatten |> List.map add_indent |> fun x -> Concat x
+            doc
+            |> List.mapi (fun i x -> if i = len then [x] else [x; Newline 0])
+            |> List.flatten
+            |> List.map add_indent
+            |> fun x -> Concat x
         in
         let doc = Concat [Text "("; sub; Text ")"] |> simplify in
         Group (Concat doc)
-
 
 and add_indent = function
     | Group d -> Group (add_indent d)
@@ -62,12 +62,9 @@ and add_indent = function
     | Newline i -> Newline (i + 4)
     | Text s -> Text s
 
-
 and simplify = function
     | Concat doc -> doc |> List.map simplify |> List.flatten
     | x -> [x]
 
-
 let print (width: int) (exp: datum) : string =
     exp |> from_datum |> to_string width 0
-

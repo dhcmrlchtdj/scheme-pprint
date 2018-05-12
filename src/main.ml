@@ -11,7 +11,6 @@ let pp (ss: string) : unit =
     P.printf "--------pretty\n%s\n" (Pretty.print 40 exp) ;
     print_newline ()
 
-
 let () =
     let prog = Sys.argv.(0) in
     let usage () = P.printf "Usage: %s [file | -]\n" prog in
@@ -23,4 +22,3 @@ let () =
         | [] | _ -> usage ()
     in
     aux argv
-

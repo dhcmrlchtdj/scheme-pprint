@@ -14,41 +14,21 @@ let rec is_num = function
     | h when is_digit h -> true
     | _ -> false
 
-
 and is_initial = function
-    | '.'
-    |'+'
-    |'-'
-    |'@'
-    |'!'
-    |'$'
-    |'%'
-    |'&'
-    |'*'
-    |'/'
-    |':'
-    |'<'
-    |'='
-    |'>'
-    |'?'
-    |'~'
-    |'_'
-    |'^' ->
+    | '.' | '+' | '-' | '@' | '!' | '$' | '%' | '&' | '*' | '/' | ':' | '<'
+    |'=' | '>' | '?' | '~' | '_' | '^' ->
         true
     | c when is_letter c -> true
     | _ -> false
-
 
 and is_subsequent = function
     | c when is_initial c -> true
     | c when is_digit c -> true
     | _ -> false
 
-
 let rec trim_space = function
     | h :: t when is_whitespace h -> trim_space t
     | x -> x
-
 
 type parsing = (datum * char list, string) result
 
@@ -60,7 +40,6 @@ let checker label =
             | [] | ')' :: _ | ']' :: _ -> Ok (d, cs)
             | h :: t when is_whitespace h -> Ok (d, trim_space t)
             | h :: _ -> Bad (Printf.sprintf "[%s] unexpected char '%c'" label h) )
-
 
 let parse (src: string) : datum =
     let rec parse_any chars : parsing =
@@ -82,7 +61,7 @@ let parse (src: string) : datum =
                      | Nil -> Bad "quote"
                      | _ ->
                          let quote = Lst [Sym "quote"; d] in
-                         Ok (quote, cs))
+                         Ok (quote, cs) )
             (parse_any chars)
     and parse_bool chars =
         let aux cs =
@@ -107,7 +86,10 @@ let parse (src: string) : datum =
                 | h :: t when is_num h -> aux (h :: acc) t
                 | _ -> Ok (Num (to_num acc), cs)
         and to_num l =
-            l |> List.map Char.escaped |> List.rev |> String.concat ""
+            l
+            |> List.map Char.escaped
+            |> List.rev
+            |> String.concat ""
             |> float_of_string
         in
         aux [] chars |> checker "num"
@@ -137,4 +119,3 @@ let parse (src: string) : datum =
         | Ok (exp, []) -> exp
         | Ok (_, h :: _) -> failwith ("expect EOF, got " ^ Char.escaped h)
         | Bad msg -> failwith msg
-
