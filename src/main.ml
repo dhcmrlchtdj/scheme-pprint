@@ -7,6 +7,9 @@ let run callback =
     let aux = function
         | ["-h"] | ["--help"] -> usage ()
         | ["-"] -> IO.read_all stdin |> callback
+        | ["-dsrc"; file] -> usage ()
+        | ["-dast"; file] -> usage ()
+        | ["-dinst"; file] -> usage ()
         | [file] -> IO.File.read_exn file |> callback
         | _ -> usage ()
     in
