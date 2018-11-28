@@ -1,8 +1,8 @@
 type t =
+    | Nil
     | Bool of bool
-    | Char of char
-    | Symbol of string
     | Str of string
     | Num of float
+    | Sym of string
     | Lst of t list
 [@@deriving show]
