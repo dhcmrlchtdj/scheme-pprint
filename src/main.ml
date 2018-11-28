@@ -5,11 +5,23 @@ let p f = function
     | `File file -> IO.File.read_exn file |> f
 
 
-let print_ast = p (fun s -> s |> Parser.parse |> Ast.show |> print_endline)
+let print_token =
+    p (fun s ->
+        s
+        |> Scanner.scan
+        |> List.map Token.show
+        |> String.concat "\n"
+        |> print_endline )
+
+
+let print_ast =
+    p (fun s -> s |> Scanner.scan |> Parser.parse |> Ast.show |> print_endline)
+
 
 let print_inst =
     p (fun s ->
         s
+        |> Scanner.scan
         |> Parser.parse
         |> Compiler.compile
         |> Instruction.show
@@ -17,7 +29,13 @@ let print_inst =
 
 
 let print_val =
-    p (fun s -> s |> Parser.parse |> Compiler.compile |> Vm.run |> print_endline)
+    p (fun s ->
+        s
+        |> Scanner.scan
+        |> Parser.parse
+        |> Compiler.compile
+        |> Vm.run
+        |> print_endline )
 
 
 let () =
@@ -25,6 +43,8 @@ let () =
     let usage () = Printf.printf "Usage: %s [-dast | -dinst] [file | -]\n" exe in
     let argv = Sys.argv |> Array.to_list |> List.tl in
     let aux = function
+        | ["-dtoken"; "-"] -> print_token `Stdin
+        | ["-dtoken"; file] -> print_token (`File file)
         | ["-dast"; "-"] -> print_ast `Stdin
         | ["-dast"; file] -> print_ast (`File file)
         | ["-dinst"; "-"] -> print_inst `Stdin
