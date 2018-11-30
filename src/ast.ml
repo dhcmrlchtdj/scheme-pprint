@@ -8,10 +8,6 @@ and form =
 and definition =
     | Def of variable * expression
     | DefFunc of variable * variable list * expression
-    (* | DefFunc2 of variable * variable list * variable * expression *)
-    (* | DefineSyntax of keyword * expression *)
-    (* | LetSyntax of syntax_binding list * definition *)
-    (* | LetSyntaxRec of syntax_binding list * definition *)
     | Begin of definition list
 [@@deriving show]
 
@@ -20,12 +16,8 @@ and expression =
     | Variable of variable
     | Quote of datum
     | Lambda of variable list * definition list * expression list
-    (* | Lambda2 of (variable list) * variable * body *)
-    (* | Lambda3 of variable * body *)
     | If of expression * expression * expression option
     | Set of variable * expression
-    (* | LetSyntax of syntax_binding list * expression list *)
-    (* | LetSyntaxRec of syntax_binding list * expression list *)
     | Application of expression * expression list
 [@@deriving show]
 
@@ -46,10 +38,8 @@ and datum =
     | Bool of bool
     | Num of float
     | Str of string
-    | Symbol of string
-    | Character of char
+    | Sym of string
     | Lst of datum list
-    (* | Vector of datum list *)
 [@@deriving show]
 
 type t = program [@@deriving show]

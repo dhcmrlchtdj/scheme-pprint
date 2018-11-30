@@ -1,3 +1,3 @@
 open! Containers
 
-let parse (tokens : Token.t list) : Ast.t = Ast.Str "x"
+let parse (tokens : Token.t list) : Ast.program = failwith "ha"

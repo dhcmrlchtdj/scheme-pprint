@@ -3,11 +3,8 @@ type t =
     | RIGHT_PAREN
     | DOT
     | QUOTE
-    | IDENTIFIER of string
-    | KEYWORD of string
-    | BOOLEAN of bool
-    | NUMBER of float
-    | CHARACTER of char
-    | STRING of string
-    | SYMBOL of string
+    | IDENT of string
+    | BOOL of bool
+    | NUM of float
+    | STR of string
 [@@deriving show]

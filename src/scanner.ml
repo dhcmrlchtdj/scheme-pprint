@@ -3,7 +3,7 @@ module T = Token
 
 (* https://www.scheme.com/tspl3/grammar.html *)
 
-let is_symbol_initial = function
+let is_identifier_initial = function
     | '!' | '$' | '%' | '&' | '*' | '/' | ':' | '<' | '=' | '>' | '?' | '~'
     |'_' | '^' ->
         true
@@ -11,50 +11,59 @@ let is_symbol_initial = function
     | _ -> false
 
 
-let is_symbol_subsequent = function
+let is_identifier_subsequent = function
     | '.' | '+' | '-' | '@' -> true
     | c when Parse.is_num c -> true
-    | c when is_symbol_initial c -> true
+    | c when is_identifier_initial c -> true
+    | _ -> false
+
+
+let is_bool_end = function
+    | [] -> true
+    | ' ' :: _ -> true
+    | ')' :: _ -> true
+    | '(' :: _ -> true
     | _ -> false
 
 
 let scan (src : string) : T.t list =
     let rec aux (acc : T.t list) (t : char list) =
-        match scan_token acc t with
-            | Ok (ts, []) -> Ok (List.rev ts)
-            | Ok (ts, tt) -> aux ts tt
+        match scan_token t with
+            | Ok (Some tok, tt) -> aux (tok :: acc) tt
+            | Ok (None, []) -> Ok (List.rev acc)
+            | Ok (None, _) -> Error "[scan aux] never"
             | Error s -> Error s
-    and scan_token (acc : T.t list) = function
-        | [] -> Ok (acc, [])
-        | h :: t when Parse.is_white h -> scan_token acc t
-        | '(' :: t -> Ok (T.LEFT_PAREN :: acc, t)
-        | ')' :: t -> Ok (T.RIGHT_PAREN :: acc, t)
+    and scan_token = function
+        | [] -> Ok (None, [])
+        | h :: t when Parse.is_white h -> scan_token t
+        | '(' :: t -> Ok (Some T.LEFT_PAREN, t)
+        | ')' :: t -> Ok (Some T.RIGHT_PAREN, t)
+        | '.' :: t -> Ok (Some T.DOT, t)
+        | '\'' :: t -> Ok (Some T.QUOTE, t)
         | '#' :: t ->
             let s = scan_bool t in
-            let f (x, tt) = (T.Bool x :: acc, tt) in
+            let f (x, tt) = (Some (T.BOOL x), tt) in
             Result.map f s
         | '"' :: t ->
             let s = scan_str [] t in
-            let f (x, tt) = (T.Str x :: acc, tt) in
+            let f (x, tt) = (Some (T.STR x), tt) in
             Result.map f s
         | h :: t when Parse.is_num h ->
             let s = scan_num [h] t in
-            let f (x, tt) = (T.Num x :: acc, tt) in
+            let f (x, tt) = (Some (T.NUM x), tt) in
             Result.map f s
-        | h :: t when is_symbol_initial h ->
-            let s = scan_symbol [h] t in
-            let f (x, tt) = (T.Symbol x :: acc, tt) in
+        | h :: t when is_identifier_initial h ->
+            let s = scan_ident [h] t in
+            let f (x, tt) = (Some (T.IDENT x), tt) in
             Result.map f s
         | h :: _ -> Error ("[scan_token] unexpected char " ^ String.of_char h)
     and scan_bool = function
-        | ['t'] -> Ok (true, [])
-        | 't' :: ')' :: t -> Ok (true, ')' :: t)
-        | 't' :: ' ' :: t -> Ok (true, t)
-        | ['f'] -> Ok (false, [])
-        | 'f' :: ')' :: t -> Ok (false, ')' :: t)
-        | 'f' :: ' ' :: t -> Ok (false, t)
-        | _ -> Error "[scan_bool] expect bool"
+        | ('t' :: t | 'T' :: t) when is_bool_end t -> Ok (true, t)
+        | ('f' :: t | 'F' :: t) when is_bool_end t -> Ok (false, t)
+        | h :: _ -> Error ("[scan_bool] expect t/f, got " ^ String.of_char h)
+        | [] -> Error "[scan_bool] expect t/f, got EOF"
     and scan_str (acc : char list) = function
+        | '\\' :: '\\' :: t -> scan_str ('\\' :: acc) t
         | '\\' :: '"' :: t -> scan_str ('"' :: acc) t
         | '"' :: t ->
             let x = acc |> List.rev |> String.of_list in
@@ -66,8 +75,8 @@ let scan (src : string) : T.t list =
         | t ->
             let x = acc |> List.rev |> String.of_list |> Float.of_string in
             Ok (x, t)
-    and scan_symbol (acc : char list) = function
-        | h :: t when is_symbol_subsequent h -> scan_symbol (h :: acc) t
+    and scan_ident (acc : char list) = function
+        | h :: t when is_identifier_subsequent h -> scan_ident (h :: acc) t
         | t ->
             let x = acc |> List.rev |> String.of_list in
             Ok (x, t)
