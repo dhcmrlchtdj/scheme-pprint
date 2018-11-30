@@ -1,7 +1,7 @@
 open! Containers
 module T = Token
 
-(* https://www.scheme.com/tspl4/grammar.html *)
+(* https://www.scheme.com/tspl3/grammar.html *)
 
 let is_symbol_initial = function
     | '!' | '$' | '%' | '&' | '*' | '/' | ':' | '<' | '=' | '>' | '?' | '~'

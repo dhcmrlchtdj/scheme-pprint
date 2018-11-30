@@ -1,8 +1,13 @@
 type t =
     | LEFT_PAREN
     | RIGHT_PAREN
-    | Bool of bool
-    | Num of float
-    | Str of string
-    | Symbol of string
+    | DOT
+    | QUOTE
+    | IDENTIFIER of string
+    | KEYWORD of string
+    | BOOLEAN of bool
+    | NUMBER of float
+    | CHARACTER of char
+    | STRING of string
+    | SYMBOL of string
 [@@deriving show]
