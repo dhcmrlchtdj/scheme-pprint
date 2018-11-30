@@ -15,7 +15,12 @@ let print_token =
 
 
 let print_ast =
-    p (fun s -> s |> Scanner.scan |> Parser.parse |> Ast.show |> print_endline)
+    p (fun s ->
+        s
+        |> Scanner.scan
+        |> Parser.parse
+        |> PrettyPrinter.to_string
+        |> print_endline )
 
 
 let print_inst =
