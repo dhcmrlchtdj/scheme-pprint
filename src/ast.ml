@@ -6,13 +6,14 @@ and expression =
     | Str of string
     | Symbol of string
     | Quote of datum
-    | Set of identifier * expression
+    | Lambda of identifier list * expression list
     | If of expression * expression * expression option
-    | Let of (identifier * expression) list * expression
+    | Set of identifier * expression
+    | CallCC of expression
     | Application of expression * expression list
-    | Lambda of identifier list * expression
-    | Define of identifier * expression
     | Begin of expression list
+    | Let of (identifier * expression) list * expression
+    | Define of identifier * expression
 [@@deriving show]
 
 and identifier = string [@@deriving show]

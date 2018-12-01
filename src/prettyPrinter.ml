@@ -8,10 +8,11 @@ let rec expr2datum (expr : Ast.expression) : Ast.datum =
         | Str x -> S x
         | Symbol x -> SYM x
         | Quote d -> L [SYM "quote"; d]
-        | Set (i, e) ->
-            (* (set! id expr)*)
-            let de = expr2datum e in
-            L [SYM "set!"; SYM i; de]
+        | Lambda (is, es) ->
+            (* (lambda (p1 p2 ...) body1 body2) *)
+            let dis = List.map (fun x -> SYM x) is in
+            let des = List.map expr2datum es in
+            L (SYM "lambda" :: L dis :: des)
         | If (t, e1, e2) ->
             (* (if cond then else)*)
             let dt = expr2datum t in
@@ -19,29 +20,32 @@ let rec expr2datum (expr : Ast.expression) : Ast.datum =
             (match Option.map expr2datum e2 with
                 | Some de2 -> L [SYM "if"; dt; de1; de2]
                 | None -> L [SYM "if"; dt; de1])
-        | Let (ees, e) ->
-            (* (let ([id expr] [i2 e2]) expr)*)
+        | Set (i, e) ->
+            (* (set! id expr)*)
             let de = expr2datum e in
-            let dees = List.map (fun (i, e) -> L [SYM i; expr2datum e]) ees in
-            L [SYM "let"; L dees; de]
+            L [SYM "set!"; SYM i; de]
+        | CallCC e ->
+            (* (call/cc (lambda (k) k)) *)
+            let de = expr2datum e in
+            L [SYM "call/cc"; de]
         | Application (e, es) ->
             (* (proc-expr a1 a2 ...) *)
             let de = expr2datum e in
             let des = List.map expr2datum es in
             L (de :: des)
-        | Lambda (is, e) ->
-            (* (lambda (p1 p2 ...) body) *)
-            let de = expr2datum e in
-            let dis = List.map (fun x -> SYM x) is in
-            L [SYM "lambda"; L dis; de]
-        | Define (i, e) ->
-            (* (define id expr) *)
-            let de = expr2datum e in
-            L [SYM "define"; SYM i; de]
         | Begin es ->
             (* (begin e1 e2 ...) *)
             let des = List.map expr2datum es in
             L (SYM "begin" :: des)
+        | Let (ees, e) ->
+            (* (let ([id expr] [i2 e2]) expr)*)
+            let de = expr2datum e in
+            let dees = List.map (fun (i, e) -> L [SYM i; expr2datum e]) ees in
+            L [SYM "let"; L dees; de]
+        | Define (i, e) ->
+            (* (define id expr) *)
+            let de = expr2datum e in
+            L [SYM "define"; SYM i; de]
 
 
 module Document = struct
