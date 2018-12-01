@@ -44,17 +44,25 @@ let tokens2datums (tokens : Token.t list) : Ast.datum list =
         | STR x :: t -> Ok (Some (S x), t)
         | SYMBOL x :: t -> Ok (Some (Q x), t)
         | QUOTE :: t -> read_quoted t
-        | LEFT_PAREN :: t -> read_list [] t
+        | LEFT_PAREN :: t -> read_list_paren [] t
         | RIGHT_PAREN :: _ -> Error "[tokens2datum] unexpected ')'"
+        | LEFT_BRACKET :: t -> read_list_bracket [] t
+        | RIGHT_BRACKET :: _ -> Error "[tokens2datum] unexpected ']'"
     and read_quoted t =
         match tokens2datum t with
             | Ok (Some datum, tt) -> Ok (Some (L [Q "quote"; datum]), tt)
             | _ -> Error "[read_quoted] expect datum"
-    and read_list acc = function
+    and read_list_paren acc = function
         | RIGHT_PAREN :: tt -> Ok (Some (L (List.rev acc)), tt)
         | t ->
             (match tokens2datum t with
-                | Ok (Some datum, tt) -> read_list (datum :: acc) tt
+                | Ok (Some datum, tt) -> read_list_paren (datum :: acc) tt
+                | _ -> Error "[read_list] expect datum")
+    and read_list_bracket acc = function
+        | RIGHT_BRACKET :: tt -> Ok (Some (L (List.rev acc)), tt)
+        | t ->
+            (match tokens2datum t with
+                | Ok (Some datum, tt) -> read_list_bracket (datum :: acc) tt
                 | _ -> Error "[read_list] expect datum")
     in
     match aux [] tokens with Ok s -> s | Error s -> failwith s
