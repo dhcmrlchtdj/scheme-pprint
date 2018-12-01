@@ -1,38 +1,26 @@
 open! Containers
 
-let rec expr2datum (expr : Ast.expression) : Ast.datum =
+let expr2datum (expr : Ast.expression) : Ast.datum =
     let open Ast in
-    match expr with
+    let rec aux = function
         | Bool x -> B x
         | Num x -> N x
         | Str x -> S x
-        | Variable x -> SYM x
-        | Quote d -> L [SYM "quote"; d]
-        | Lambda (is, e) ->
-            (* (lambda (param1 param2 ...) body) *)
-            let dis = List.map (fun x -> SYM x) is in
-            let de = expr2datum e in
-            L [SYM "lambda"; L dis; de]
-        | If (t, e1, e2) ->
-            (* (if cond then else)*)
-            let dt = expr2datum t in
-            let de1 = expr2datum e1 in
-            (match Option.map expr2datum e2 with
-                | Some de2 -> L [SYM "if"; dt; de1; de2]
-                | None -> L [SYM "if"; dt; de1])
-        | Set (i, e) ->
-            (* (set! id expr)*)
-            let de = expr2datum e in
-            L [SYM "set!"; SYM i; de]
-        | CallCC e ->
-            (* (call/cc (lambda (k) k)) *)
-            let de = expr2datum e in
-            L [SYM "call/cc"; de]
-        | Application (e, es) ->
-            (* (proc arg1 arg2 ...) *)
-            let de = expr2datum e in
-            let des = List.map expr2datum es in
-            L (de :: des)
+        | Variable x -> Q x
+        | Quote d -> L [Q "quote"; d]
+        | Lambda (params, exp) ->
+            let symbols = ident2symbol [] params in
+            L [Q "lambda"; L symbols; aux exp]
+        | If (cond, exp1, None) -> L [Q "if"; aux cond; aux exp1]
+        | If (cond, exp1, Some exp2) -> L [Q "if"; aux cond; aux exp1; aux exp2]
+        | Set (id, exp) -> L [Q "set!"; Q id; aux exp]
+        | CallCC exp -> L [Q "call/cc"; aux exp]
+        | Application (proc, args) -> L (aux proc :: List.map aux args)
+    and ident2symbol acc = function
+        | [] -> List.rev acc
+        | h :: t -> ident2symbol (Q h :: acc) t
+    in
+    aux expr
 
 
 module Document = struct
@@ -79,7 +67,7 @@ module Document = struct
     let of_datum =
         let open Ast in
         let rec aux = function
-            | SYM s -> Text (P.sprintf "%s" s)
+            | Q s -> Text (P.sprintf "%s" s)
             | S s -> Text (P.sprintf "%S" s)
             | B b -> Text (if b then "#t" else "#f")
             | N f -> Text (P.sprintf "%F" f)

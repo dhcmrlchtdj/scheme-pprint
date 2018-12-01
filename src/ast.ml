@@ -16,9 +16,10 @@ and expression =
 and identifier = string [@@deriving show]
 
 and datum =
-    | SYM of string
-    | S of string
     | B of bool
     | N of float
+    | S of string
+    (* symbol *)
+    | Q of string
     | L of datum list
 [@@deriving show]

@@ -38,7 +38,6 @@ let scan (src : string) : T.t list =
         | h :: t when Parse.is_white h -> scan_token t
         | '(' :: t -> Ok (Some T.LEFT_PAREN, t)
         | ')' :: t -> Ok (Some T.RIGHT_PAREN, t)
-        | '.' :: t -> Ok (Some T.DOT, t)
         | '\'' :: t -> Ok (Some T.QUOTE, t)
         | '#' :: t ->
             let s = scan_bool t in
