@@ -15,6 +15,10 @@ let print_token =
 
 
 let print_ast =
+    p (fun s -> s |> Scanner.scan |> Parser.parse |> Ast.show |> print_endline)
+
+
+let print_fmt =
     p (fun s ->
         s
         |> Scanner.scan
@@ -45,13 +49,17 @@ let print_val =
 
 let () =
     let exe = Sys.argv.(0) in
-    let usage () = Printf.printf "Usage: %s [-dast | -dinst] [file | -]\n" exe in
+    let usage () =
+        Printf.printf "Usage: %s [-token | -dast | -dinst | -fmt] [file | -]\n" exe
+    in
     let argv = Sys.argv |> Array.to_list |> List.tl in
     let aux = function
         | ["-dtoken"; "-"] -> print_token `Stdin
         | ["-dtoken"; file] -> print_token (`File file)
         | ["-dast"; "-"] -> print_ast `Stdin
         | ["-dast"; file] -> print_ast (`File file)
+        | ["-fmt"; "-"] -> print_fmt `Stdin
+        | ["-fmt"; file] -> print_fmt (`File file)
         | ["-dinst"; "-"] -> print_inst `Stdin
         | ["-dinst"; file] -> print_inst (`File file)
         | ["-"] -> print_val `Stdin

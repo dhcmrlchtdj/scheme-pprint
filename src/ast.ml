@@ -1,6 +1,15 @@
-type t = expression list [@@deriving show]
+type identifier = string [@@deriving show]
 
-and expression =
+type datum =
+    | B of bool
+    | N of float
+    | S of string
+    (* symbol *)
+    | Q of string
+    | L of datum list
+[@@deriving show]
+
+type expression =
     | Bool of bool
     | Num of float
     | Str of string
@@ -13,13 +22,4 @@ and expression =
     | Application of expression * expression list
 [@@deriving show]
 
-and identifier = string [@@deriving show]
-
-and datum =
-    | B of bool
-    | N of float
-    | S of string
-    (* symbol *)
-    | Q of string
-    | L of datum list
-[@@deriving show]
+type t = expression list [@@deriving show]
