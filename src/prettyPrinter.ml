@@ -9,7 +9,7 @@ let rec expr2datum (expr : Ast.expression) : Ast.datum =
         | Symbol x -> SYM x
         | Quote d -> L [SYM "quote"; d]
         | Lambda (is, es) ->
-            (* (lambda (p1 p2 ...) body1 body2) *)
+            (* (lambda (param1 param2 ...) body1 body2) *)
             let dis = List.map (fun x -> SYM x) is in
             let des = List.map expr2datum es in
             L (SYM "lambda" :: L dis :: des)
@@ -29,23 +29,10 @@ let rec expr2datum (expr : Ast.expression) : Ast.datum =
             let de = expr2datum e in
             L [SYM "call/cc"; de]
         | Application (e, es) ->
-            (* (proc-expr a1 a2 ...) *)
+            (* (proc arg1 arg2 ...) *)
             let de = expr2datum e in
             let des = List.map expr2datum es in
             L (de :: des)
-        | Begin es ->
-            (* (begin e1 e2 ...) *)
-            let des = List.map expr2datum es in
-            L (SYM "begin" :: des)
-        | Let (ees, e) ->
-            (* (let ([id expr] [i2 e2]) expr)*)
-            let de = expr2datum e in
-            let dees = List.map (fun (i, e) -> L [SYM i; expr2datum e]) ees in
-            L [SYM "let"; L dees; de]
-        | Define (i, e) ->
-            (* (define id expr) *)
-            let de = expr2datum e in
-            L [SYM "define"; SYM i; de]
 
 
 module Document = struct

@@ -11,9 +11,6 @@ and expression =
     | Set of identifier * expression
     | CallCC of expression
     | Application of expression * expression list
-    | Begin of expression list
-    | Let of (identifier * expression) list * expression
-    | Define of identifier * expression
 [@@deriving show]
 
 and identifier = string [@@deriving show]
