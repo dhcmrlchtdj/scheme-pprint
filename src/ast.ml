@@ -4,9 +4,9 @@ and expression =
     | Bool of bool
     | Num of float
     | Str of string
-    | Symbol of string
+    | Variable of string
     | Quote of datum
-    | Lambda of identifier list * expression list
+    | Lambda of identifier list * expression
     | If of expression * expression * expression option
     | Set of identifier * expression
     | CallCC of expression

@@ -12,7 +12,6 @@ FLG -bin-annot
 
 FLG -w +a-4
 
-PKG alcotest
 PKG re
 PKG containers
 PKG ppx_deriving.std

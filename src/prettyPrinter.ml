@@ -6,13 +6,13 @@ let rec expr2datum (expr : Ast.expression) : Ast.datum =
         | Bool x -> B x
         | Num x -> N x
         | Str x -> S x
-        | Symbol x -> SYM x
+        | Variable x -> SYM x
         | Quote d -> L [SYM "quote"; d]
-        | Lambda (is, es) ->
-            (* (lambda (param1 param2 ...) body1 body2) *)
+        | Lambda (is, e) ->
+            (* (lambda (param1 param2 ...) body) *)
             let dis = List.map (fun x -> SYM x) is in
-            let des = List.map expr2datum es in
-            L (SYM "lambda" :: L dis :: des)
+            let de = expr2datum e in
+            L [SYM "lambda"; L dis; de]
         | If (t, e1, e2) ->
             (* (if cond then else)*)
             let dt = expr2datum t in
@@ -81,7 +81,7 @@ module Document = struct
         let rec aux = function
             | SYM s -> Text (P.sprintf "%s" s)
             | S s -> Text (P.sprintf "%S" s)
-            | B b -> Text (P.sprintf "%B" b)
+            | B b -> Text (if b then "#t" else "#f")
             | N f -> Text (P.sprintf "%F" f)
             | L ds ->
                 let sub =

@@ -3,7 +3,7 @@ module T = Token
 
 (* https://www.scheme.com/tspl3/grammar.html *)
 
-let is_identifier_initial = function
+let is_symbol_initial = function
     | '!' | '$' | '%' | '&' | '*' | '/' | ':' | '<' | '=' | '>' | '?' | '~'
     |'_' | '^' ->
         true
@@ -11,18 +11,18 @@ let is_identifier_initial = function
     | _ -> false
 
 
-let is_identifier_subsequent = function
+let is_symbol_subsequent = function
     | '.' | '+' | '-' | '@' -> true
     | c when Parse.is_num c -> true
-    | c when is_identifier_initial c -> true
+    | c when is_symbol_initial c -> true
     | _ -> false
 
 
 let is_bool_end = function
     | [] -> true
-    | ' ' :: _ -> true
     | ')' :: _ -> true
     | '(' :: _ -> true
+    | h :: _ when Parse.is_white h -> true
     | _ -> false
 
 
@@ -52,9 +52,9 @@ let scan (src : string) : T.t list =
             let s = scan_num [h] t in
             let f (x, tt) = (Some (T.NUM x), tt) in
             Result.map f s
-        | h :: t when is_identifier_initial h ->
-            let s = scan_ident [h] t in
-            let f (x, tt) = (Some (T.IDENT x), tt) in
+        | h :: t when is_symbol_initial h ->
+            let s = scan_symbol [h] t in
+            let f (x, tt) = (Some (T.SYMBOL x), tt) in
             Result.map f s
         | h :: _ -> Error ("[scan_token] unexpected char " ^ String.of_char h)
     and scan_bool = function
@@ -75,8 +75,8 @@ let scan (src : string) : T.t list =
         | t ->
             let x = acc |> List.rev |> String.of_list |> Float.of_string in
             Ok (x, t)
-    and scan_ident (acc : char list) = function
-        | h :: t when is_identifier_subsequent h -> scan_ident (h :: acc) t
+    and scan_symbol (acc : char list) = function
+        | h :: t when is_symbol_subsequent h -> scan_symbol (h :: acc) t
         | t ->
             let x = acc |> List.rev |> String.of_list in
             Ok (x, t)

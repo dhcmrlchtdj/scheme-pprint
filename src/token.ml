@@ -3,7 +3,7 @@ type t =
     | RIGHT_PAREN
     | DOT
     | QUOTE
-    | IDENT of string
+    | SYMBOL of string
     | BOOL of bool
     | NUM of float
     | STR of string

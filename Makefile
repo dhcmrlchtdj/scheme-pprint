@@ -5,9 +5,11 @@ main: byte
 
 .PHONY: test
 test: main
-	# @ ocamlbuild -use-ocamlfind src/test.byte
-	# @ ./test.byte
-	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY!)" | ./main -
+	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)"
+	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -dtoken -
+	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -dast -
+	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -dinst -
+	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -
 
 .PHONY: byte
 byte: $(mlis)
