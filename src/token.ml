@@ -8,4 +8,5 @@ type t =
     | NUM of float
     | STR of string
     | SYMBOL of string
+    | COMMENT of string
 [@@deriving show]

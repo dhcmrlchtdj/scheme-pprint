@@ -16,7 +16,8 @@ let datum2expr (datum : Ast.datum) : Ast.expression =
         | L [Q "set!"; Q id; exp] -> Set (id, aux exp)
         | L [Q "call/cc"; exp] -> CallCC (aux exp)
         | L (proc :: args) -> Application (aux proc, List.map aux args)
-        | _ -> failwith "[datum2expr] unsupported"
+        (* FIXME empty list *)
+        | L [] -> Quote (L [])
     and is_symbol_list = function
         | [] -> true
         | Q _ :: t -> is_symbol_list t
@@ -35,10 +36,11 @@ let tokens2datums (tokens : Token.t list) : Ast.datum list =
         match tokens2datum t with
             | Ok (Some datum, tt) -> aux (datum :: acc) tt
             | Ok (None, []) -> Ok (List.rev acc)
-            | Ok (None, _) -> Error "[tokens2datums aux] never"
+            | Ok (None, tt) -> aux acc tt
             | Error s -> Error s
     and tokens2datum = function
         | [] -> Ok (None, [])
+        | COMMENT _ :: t -> Ok (None, t)
         | BOOL x :: t -> Ok (Some (B x), t)
         | NUM x :: t -> Ok (Some (N x), t)
         | STR x :: t -> Ok (Some (S x), t)

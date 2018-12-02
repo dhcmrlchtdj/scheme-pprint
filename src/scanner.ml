@@ -1,18 +1,16 @@
 open! Containers
-module T = Token
 
 (* https://www.scheme.com/tspl3/grammar.html *)
 
 let is_symbol_initial = function
     | '!' | '$' | '%' | '&' | '*' | '/' | ':' | '<' | '=' | '>' | '?' | '~'
-    |'_' | '^' ->
+    |'_' | '^' | '.' | '+' | '-' | '@' ->
         true
     | c when Parse.is_alpha c -> true
     | _ -> false
 
 
 let is_symbol_subsequent = function
-    | '.' | '+' | '-' | '@' -> true
     | c when Parse.is_num c -> true
     | c when is_symbol_initial c -> true
     | _ -> false
@@ -26,8 +24,9 @@ let is_bool_end = function
     | _ -> false
 
 
-let scan (src : string) : T.t list =
-    let rec aux (acc : T.t list) (t : char list) =
+let scan (src : string) : Token.t list =
+    let open Token in
+    let rec aux (acc : Token.t list) (t : char list) =
         match scan_token t with
             | Ok (Some tok, tt) -> aux (tok :: acc) tt
             | Ok (None, []) -> Ok (List.rev acc)
@@ -36,33 +35,32 @@ let scan (src : string) : T.t list =
     and scan_token = function
         | [] -> Ok (None, [])
         | h :: t when Parse.is_white h -> scan_token t
-        | '[' :: t -> Ok (Some T.LEFT_BRACKET, t)
-        | ']' :: t -> Ok (Some T.RIGHT_BRACKET, t)
-        | '(' :: t -> Ok (Some T.LEFT_PAREN, t)
-        | ')' :: t -> Ok (Some T.RIGHT_PAREN, t)
-        | '\'' :: t -> Ok (Some T.QUOTE, t)
-        | '#' :: t ->
-            let s = scan_bool t in
-            let f (x, tt) = (Some (T.BOOL x), tt) in
+        | '[' :: t -> Ok (Some LEFT_BRACKET, t)
+        | ']' :: t -> Ok (Some RIGHT_BRACKET, t)
+        | '(' :: t -> Ok (Some LEFT_PAREN, t)
+        | ')' :: t -> Ok (Some RIGHT_PAREN, t)
+        | '\'' :: t -> Ok (Some QUOTE, t)
+        | '#' :: 't' :: t when is_bool_end t -> Ok (Some (BOOL true), t)
+        | '#' :: 'T' :: t when is_bool_end t -> Ok (Some (BOOL true), t)
+        | '#' :: 'f' :: t when is_bool_end t -> Ok (Some (BOOL false), t)
+        | '#' :: 'F' :: t when is_bool_end t -> Ok (Some (BOOL false), t)
+        | ';' :: t ->
+            let s = scan_comment [] t in
+            let f (x, tt) = (Some (COMMENT x), tt) in
             Result.map f s
         | '"' :: t ->
             let s = scan_str [] t in
-            let f (x, tt) = (Some (T.STR x), tt) in
+            let f (x, tt) = (Some (STR x), tt) in
             Result.map f s
         | h :: t when Parse.is_num h ->
             let s = scan_num [h] t in
-            let f (x, tt) = (Some (T.NUM x), tt) in
+            let f (x, tt) = (Some (NUM x), tt) in
             Result.map f s
         | h :: t when is_symbol_initial h ->
             let s = scan_symbol [h] t in
-            let f (x, tt) = (Some (T.SYMBOL x), tt) in
+            let f (x, tt) = (Some (SYMBOL x), tt) in
             Result.map f s
         | h :: _ -> Error ("[scan_token] unexpected char " ^ String.of_char h)
-    and scan_bool = function
-        | ('t' :: t | 'T' :: t) when is_bool_end t -> Ok (true, t)
-        | ('f' :: t | 'F' :: t) when is_bool_end t -> Ok (false, t)
-        | h :: _ -> Error ("[scan_bool] expect t/f, got " ^ String.of_char h)
-        | [] -> Error "[scan_bool] expect t/f, got EOF"
     and scan_str (acc : char list) = function
         | '\\' :: '\\' :: t -> scan_str ('\\' :: acc) t
         | '\\' :: '"' :: t -> scan_str ('"' :: acc) t
@@ -81,5 +79,10 @@ let scan (src : string) : T.t list =
         | t ->
             let x = acc |> List.rev |> String.of_list in
             Ok (x, t)
+    and scan_comment (acc : char list) = function
+        | h :: t when not (Char.equal h '\n') -> scan_comment (h :: acc) t
+        | t ->
+            let x = acc |> List.rev |> String.of_list in
+            Ok (x, t)
     in
-    match aux [] (String.to_list src) with Ok s -> s | Error s -> failwith s
+  match aux [] (String.to_list src) with Ok s -> s | Error s -> failwith s
