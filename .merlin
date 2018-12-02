@@ -13,6 +13,5 @@ FLG -bin-annot
 FLG -w +a-4
 FLG -warn-error -a+31
 
-PKG re
 PKG containers
 PKG ppx_deriving.std

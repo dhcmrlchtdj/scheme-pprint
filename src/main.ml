@@ -54,6 +54,7 @@ let () =
     in
     let argv = Sys.argv |> Array.to_list |> List.tl in
     let aux = function
+        | ["-h"] -> usage ()
         | ["-dtoken"; "-"] -> print_token `Stdin
         | ["-dtoken"; file] -> print_token (`File file)
         | ["-dast"; "-"] -> print_ast `Stdin
