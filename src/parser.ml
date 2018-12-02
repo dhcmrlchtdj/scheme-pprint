@@ -6,7 +6,7 @@ let datum2expr (datum : Ast.datum) : Ast.expression =
         | B x -> Bool x
         | N x -> Num x
         | S x -> Str x
-        | Q x -> Variable x
+        | Q x -> Symbol x
         | L [Q "quote"; d] -> Quote d
         | L [Q "lambda"; L idents; exp] when is_symbol_list idents ->
             let params = symbol2ident [] idents in
@@ -16,7 +16,7 @@ let datum2expr (datum : Ast.datum) : Ast.expression =
         | L [Q "set!"; Q id; exp] -> Set (id, aux exp)
         | L [Q "call/cc"; exp] -> CallCC (aux exp)
         | L (proc :: args) -> Application (aux proc, List.map aux args)
-        (* FIXME empty list *)
+        (* FIXME empty list is syntax error (?) *)
         | L [] -> Quote (L [])
     and is_symbol_list = function
         | [] -> true

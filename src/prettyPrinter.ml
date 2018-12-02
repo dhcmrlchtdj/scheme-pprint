@@ -6,7 +6,7 @@ let expr2datum (expr : Ast.expression) : Ast.datum =
         | Bool x -> B x
         | Num x -> N x
         | Str x -> S x
-        | Variable x -> Q x
+        | Symbol x -> Q x
         | Quote d -> L [Q "quote"; d]
         | Lambda (params, exp) ->
             let symbols = ident2symbol [] params in

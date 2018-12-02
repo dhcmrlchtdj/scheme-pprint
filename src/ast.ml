@@ -13,7 +13,7 @@ type expression =
     | Bool of bool
     | Num of float
     | Str of string
-    | Variable of string
+    | Symbol of string
     | Quote of datum
     | Lambda of identifier list * expression
     | If of expression * expression * expression option
