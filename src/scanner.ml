@@ -85,4 +85,4 @@ let scan (src : string) : Token.t list =
             let x = acc |> List.rev |> String.of_list in
             Ok (x, t)
     in
-  match aux [] (String.to_list src) with Ok s -> s | Error s -> failwith s
+    match aux [] (String.to_list src) with Ok s -> s | Error s -> failwith s
