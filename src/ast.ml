@@ -16,7 +16,7 @@ type expression =
     | Symbol of string
     | Quote of datum
     | Lambda of identifier list * expression
-    | If of expression * expression * expression option
+    | If of expression * expression * expression
     | Set of identifier * expression
     | CallCC of expression
     | Application of expression * expression list

@@ -14,7 +14,7 @@ let compile (ast : Ast.t) : Instruction.t list =
             Closure (params, body, next)
         | If (cond, exp1, exp2) ->
             let then_next = expr2inst next exp1 in
-            let else_next = Option.map (expr2inst next) exp2 in
+            let else_next = expr2inst next exp2 in
             let next_cond = Test (then_next, else_next) in
             expr2inst next_cond cond
         | Set (id, exp) ->
@@ -22,7 +22,7 @@ let compile (ast : Ast.t) : Instruction.t list =
             expr2inst set_next exp
         | CallCC exp ->
             let k_next = expr2inst Apply exp in
-            let cc_next = Continuation k_next in
+            let cc_next = Continuate k_next in
             (match next with Return -> cc_next | _ -> Frame (next, cc_next))
         | Application (proc, args) ->
             let fn_next = expr2inst Apply proc in

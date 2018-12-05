@@ -7,17 +7,29 @@ type t =
     (* args, fn_body, next_expression *)
     | Closure of string list * t * t
     (* next_then, next_else *)
-    | Test of t * t option
+    | Test of t * t
     (* variable, next_expression *)
     | Assign of string * t
     (* next_expression *)
-    | Continuation of t
+    | Continuate of t
     (* stack, variable *)
-    (* | Restore of stack * string *)
-    (* next_expression, stack_return_expression *)
+    | Nuate of stack list * string
+    (* stack_return_expression, next_expression *)
     | Frame of t * t
     (* next_expression *)
     | Argument of t
     | Apply
     | Return
 [@@deriving show]
+
+and ret =
+    | N
+    | C of closure
+    | D of Ast.datum
+[@@deriving show]
+
+and env = (string * ret) list [@@deriving show]
+
+and closure = t * env * string list [@@deriving show]
+
+and stack = t * env * ret list [@@deriving show]

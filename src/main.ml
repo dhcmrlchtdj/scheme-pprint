@@ -44,7 +44,8 @@ let print_val =
         |> Scanner.scan
         |> Parser.parse
         |> Compiler.compile
-        |> Vm.run
+        |> List.map Interpreter.interpret
+        |> String.concat "\n"
         |> print_endline )
 
 

@@ -11,8 +11,7 @@ let datum2expr (datum : Ast.datum) : Ast.expression =
         | L [Q "lambda"; L idents; exp] when is_symbol_list idents ->
             let params = symbol2ident [] idents in
             Lambda (params, aux exp)
-        | L [Q "if"; cond; exp1] -> If (aux cond, aux exp1, None)
-        | L [Q "if"; cond; exp1; exp2] -> If (aux cond, aux exp1, Some (aux exp2))
+        | L [Q "if"; cond; exp1; exp2] -> If (aux cond, aux exp1, aux exp2)
         | L [Q "set!"; Q id; exp] -> Set (id, aux exp)
         | L [Q "call/cc"; exp] -> CallCC (aux exp)
         | L (proc :: args) -> Application (aux proc, List.map aux args)
