@@ -1,4 +1,10 @@
-true: safe_string, short_paths, strict_sequence, keep_locs, keep_docs, bin_annot, principal
+true: bin_annot
+true: keep_docs
+true: keep_locs
+true: principal
+true: safe_string
+true: short_paths
+true: strict_sequence
 true: color(always)
 true: warn(+a-4)
 true: warn_error(-a+31)
