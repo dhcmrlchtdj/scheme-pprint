@@ -1,3 +1,1 @@
-# schemer
-
-learn by doing
+### schemer
