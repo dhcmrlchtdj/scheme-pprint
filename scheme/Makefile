@@ -1,26 +1,24 @@
 mlis := $(patsubst %.ml,%,$(wildcard src/*.ml))
+prog := "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)"
+# prog := "((lambda (x) x) 'HEY)"
+# prog := "(+ (+ 10 20) (+ 1 1))"
 
 .PHONY: main
 main: byte
 
 .PHONY: test
 test: main
-	# @ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)"
-	# @ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -fmt -
-	# @ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -token -
-	# @ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -ast -
-	# @ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -inst -
-	@ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -
+	@# echo $(prog) ; echo ""
+	@# echo $(prog) | ./main -fmt - ; echo ""
+	@# echo $(prog) | ./main -token - ; echo ""
+	@ echo $(prog) | ./main -ast - ; echo ""
+	@ echo $(prog) | ./main -inst - ; echo ""
+	@ echo $(prog) | ocamlrun -b ./main - ; echo ""
 
 .PHONY: byte
 byte: $(mlis)
 	@ ocamlbuild -use-ocamlfind src/main.byte
 	@ ln -sf ./main.byte ./main
-
-.PHONY: native
-native: $(mlis)
-	@ ocamlbuild -use-ocamlfind src/main.native
-	@ ln -sf ./main.native ./main
 
 .PHONY: $(mlis)
 $(mlis):

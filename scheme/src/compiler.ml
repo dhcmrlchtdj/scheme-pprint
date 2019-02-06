@@ -6,7 +6,7 @@ let compile (ast : Ast.t) : Instruction.t list =
     let rec expr2inst (next : Instruction.t) = function
         | Symbol x -> Refer (x, next)
         | Bool x -> Constant (B x, next)
-        | Num x -> Constant (N x, next)
+        | Num x -> Constant (Ast.N x, next)
         | Str x -> Constant (S x, next)
         | Quote d -> Constant (d, next)
         | Lambda (params, exp) ->

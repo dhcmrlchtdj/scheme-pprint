@@ -15,15 +15,16 @@ let rec env_extend (keys : string list) (values : I.ret list) (env : I.env) :
         | hkey :: tkey, hval :: tval ->
             let env2 = Assoc.set ~eq:String.equal hkey hval env in
             env_extend tkey tval env2
-        | _, _ -> failwith "never"
+        | _, _ -> failwith "[env_extend] never"
 
 
 let env_lookup key (env : I.env) = Assoc.get_exn ~eq:String.equal key env
 
 let ret2string = function
     | I.N -> "nil"
-    | I.C closure -> "<fn>"
-    | I.D datum -> "datum"
+    | I.C _ -> "<fn>"
+    | I.D datum -> Ast.show_datum datum
+    | I.B_bin _ -> "builtin"
 
 
 let interpret (inst : Instruction.t) : string =
@@ -44,7 +45,9 @@ let interpret (inst : Instruction.t) : string =
                 let fn = (body, env, params) in
                 aux (C fn) next env args stacks
             | Test (n1, n2) ->
-                let next = match acc with N -> n2 | C _ -> n1 | D _ -> n1 in
+                let next =
+                    match acc with N -> n2 | C _ -> n1 | D _ -> n1 | B_bin _ -> n1
+                in
                 aux acc next env args stacks
             | Assign (name, next) ->
                 let env2 = env_update name acc env in
@@ -67,11 +70,25 @@ let interpret (inst : Instruction.t) : string =
                     | N | D _ -> failwith "not a function"
                     | C (next, env2, params) ->
                         let env3 = env_extend params args env2 in
-                        aux acc next env3 [] stacks)
+                        aux acc next env3 [] stacks
+                    | B_bin fn ->
+                        let r1 =
+                            match args with
+                                | [I.D x; I.D y] -> fn (x, y)
+                                | _ -> failwith "invalid bin fn"
+                        in
+                        let r2 = I.D r1 in
+                        aux r2 Return env [] stacks)
             | Return ->
                 (match stacks with
                     | (next, env2, args2) :: stacks2 -> aux acc next env2 args2 stacks2
                     | _ -> failwith "")
     in
-    let r = aux N inst [] [] [] in
+    let stdenv =
+        [ ( "+"
+          , I.B_bin
+                  (function
+                      | Ast.N x, Ast.N y -> Ast.N (x +. y) | _ -> failwith "invalid") ) ]
+    in
+    let r = aux N inst stdenv [] [] in
     ret2string r

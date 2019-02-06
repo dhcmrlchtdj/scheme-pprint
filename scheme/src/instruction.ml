@@ -25,6 +25,7 @@ type t =
 and ret =
     | N
     | C of closure
+    | B_bin of (Ast.datum * Ast.datum -> Ast.datum)
     | D of Ast.datum
 [@@deriving show]
 
