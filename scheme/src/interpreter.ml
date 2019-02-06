@@ -27,6 +27,13 @@ let ret2string = function
     | I.B_bin _ -> "builtin"
 
 
+let stdenv =
+    [ ( "+"
+      , I.B_bin
+              (function
+                  | Ast.N x, Ast.N y -> Ast.N (x +. y) | _ -> failwith "invalid") ) ]
+
+
 let interpret (inst : Instruction.t) : string =
     let open Instruction in
     let rec aux
@@ -83,12 +90,6 @@ let interpret (inst : Instruction.t) : string =
                 (match stacks with
                     | (next, env2, args2) :: stacks2 -> aux acc next env2 args2 stacks2
                     | _ -> failwith "")
-    in
-    let stdenv =
-        [ ( "+"
-          , I.B_bin
-                  (function
-                      | Ast.N x, Ast.N y -> Ast.N (x +. y) | _ -> failwith "invalid") ) ]
     in
     let r = aux N inst stdenv [] [] in
     ret2string r

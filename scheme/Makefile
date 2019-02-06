@@ -1,16 +1,20 @@
 mlis := $(patsubst %.ml,%,$(wildcard src/*.ml))
-prog := "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)"
+# prog := "(+ (+ 1 2) 3)"
+# prog := "'HEY"
+# prog := "(lambda (c) c)"
 # prog := "((lambda (x) x) 'HEY)"
-# prog := "(+ (+ 10 20) (+ 1 1))"
+# prog := "(call/cc (lambda (c) c))"
+# prog := "((call/cc (lambda (c) c)) (lambda (x) x))"
+prog := "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)"
 
 .PHONY: main
 main: byte
 
 .PHONY: test
 test: main
-	@# echo $(prog) ; echo ""
-	@# echo $(prog) | ./main -fmt - ; echo ""
-	@# echo $(prog) | ./main -token - ; echo ""
+	@ echo $(prog) ; echo ""
+	@ echo $(prog) | ./main -fmt - ; echo ""
+	@ echo $(prog) | ./main -token - ; echo ""
 	@ echo $(prog) | ./main -ast - ; echo ""
 	@ echo $(prog) | ./main -inst - ; echo ""
 	@ echo $(prog) | ocamlrun -b ./main - ; echo ""

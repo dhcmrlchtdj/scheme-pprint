@@ -22,7 +22,7 @@ let compile (ast : Ast.t) : Instruction.t list =
             expr2inst set_next exp
         | CallCC exp ->
             let k_next = expr2inst Apply exp in
-            let cc_next = Continuate k_next in
+            let cc_next = Continuate (Argument k_next) in
             (match next with Return -> cc_next | _ -> Frame (next, cc_next))
         | Application (proc, args) ->
             let fn_next = expr2inst Apply proc in
