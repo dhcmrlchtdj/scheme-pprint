@@ -22,16 +22,26 @@ let env_lookup key (env : I.env) = Assoc.get_exn ~eq:String.equal key env
 
 let ret2string = function
     | I.N -> "nil"
-    | I.C _ -> "<fn>"
-    | I.D datum -> Ast.show_datum datum
-    | I.B_bin _ -> "builtin"
+    | I.C _ -> "<function>"
+    | I.B_bin _ -> "<builtin function>"
+    | I.D datum ->
+        let rec p_datum = function
+            | Ast.Q s -> Printf.sprintf "%s" s
+            | Ast.S s -> Printf.sprintf "%S" s
+            | Ast.B b -> if b then "#t" else "#f"
+            | Ast.N f -> Printf.sprintf "%F" f
+            | Ast.L ds ->
+                Printf.sprintf "(%s)" (String.concat " " (List.map p_datum ds))
+        in
+        p_datum datum
 
 
 let stdenv =
     [ ( "+"
       , I.B_bin
               (function
-                  | Ast.N x, Ast.N y -> Ast.N (x +. y) | _ -> failwith "invalid") ) ]
+                  | I.D (Ast.N x), I.D (Ast.N y) -> I.D (Ast.N (x +. y))
+                  | _ -> failwith "invalid") ) ]
 
 
 let interpret (inst : Instruction.t) : string =
@@ -79,13 +89,12 @@ let interpret (inst : Instruction.t) : string =
                         let env3 = env_extend params args env2 in
                         aux acc next env3 [] stacks
                     | B_bin fn ->
-                        let r1 =
+                        let acc2 =
                             match args with
-                                | [I.D x; I.D y] -> fn (x, y)
+                                | [x; y] -> fn (x, y)
                                 | _ -> failwith "invalid bin fn"
                         in
-                        let r2 = I.D r1 in
-                        aux r2 Return env [] stacks)
+                        aux acc2 Return env [] stacks)
             | Return ->
                 (match stacks with
                     | (next, env2, args2) :: stacks2 -> aux acc next env2 args2 stacks2
