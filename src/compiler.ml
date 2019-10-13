@@ -33,6 +33,8 @@ let compile (ast : Ast.t) : Instruction.t list =
                     aux nn t
             in
             let args_next = aux fn_next args in
-            (match next with Return -> args_next | _ -> Frame (next, args_next))
+            (match next with
+                | Return -> args_next
+                | _ -> Frame (next, args_next))
     in
     List.map (expr2inst Halt) ast

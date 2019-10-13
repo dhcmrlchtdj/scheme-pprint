@@ -11,7 +11,7 @@ let print_token =
         |> Scanner.scan
         |> List.map Token.show
         |> String.concat "\n"
-        |> print_endline )
+        |> print_endline)
 
 
 let print_ast =
@@ -24,7 +24,7 @@ let print_fmt =
         |> Scanner.scan
         |> Parser.parse
         |> PrettyPrinter.to_string
-        |> print_endline )
+        |> print_endline)
 
 
 let print_inst =
@@ -35,7 +35,7 @@ let print_inst =
         |> Compiler.compile
         |> List.map Instruction.show
         |> String.concat "\n"
-        |> print_endline )
+        |> print_endline)
 
 
 let print_val =
@@ -46,13 +46,15 @@ let print_val =
         |> Compiler.compile
         |> List.map Interpreter.interpret
         |> String.concat "\n"
-        |> print_endline )
+        |> print_endline)
 
 
 let () =
     let exe = Sys.argv.(0) in
     let usage () =
-        Printf.printf "Usage: %s [-token | -ast | -fmt | -inst] [file | -]\n" exe
+        Printf.printf
+            "Usage: %s [-token | -ast | -fmt | -inst] [file | -]\n"
+            exe
     in
     let argv = Sys.argv |> Array.to_list |> List.tl in
     let aux = function

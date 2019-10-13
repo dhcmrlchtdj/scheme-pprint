@@ -42,14 +42,16 @@ module Document = struct
                 let len = String.length s in
                 if len + used <= max_width then s else aux used d
             | Concat ds ->
-                let _, dss =
+                let (_, dss) =
                     List.fold_left
                         (fun (w, prev) next ->
-                             let s = aux w next in
-                             let r =
-                                 match next with Newline i -> i | _ -> w + String.length s
-                             in
-                             (r, s :: prev) )
+                                    let s = aux w next in
+                                    let r =
+                                        match next with
+                                            | Newline i -> i
+                                            | _ -> w + String.length s
+                                    in
+                                    (r, s :: prev))
                         (used, [])
                         ds
                 in
@@ -75,7 +77,8 @@ module Document = struct
                     let doc = List.map aux ds in
                     let len = List.length doc - 1 in
                     doc
-                    |> List.mapi (fun i x -> if i = len then [x] else [x; Newline 0])
+                    |> List.mapi (fun i x ->
+                        if i = len then [x] else [x; Newline 0])
                     |> List.flatten
                     |> List.map add_indent
                     |> fun x -> Concat x

@@ -8,14 +8,15 @@ let env_update key value env =
     else raise Not_found
 
 
-let rec env_extend (keys : string list) (values : I.ret list) (env : I.env) :
-    I.env =
+let rec env_extend (keys : string list) (values : I.ret list) (env : I.env)
+    : I.env
+    =
     match (keys, values) with
-        | [], [] -> env
-        | hkey :: tkey, hval :: tval ->
+        | ([], []) -> env
+        | (hkey :: tkey, hval :: tval) ->
             let env2 = Assoc.set ~eq:String.equal hkey hval env in
             env_extend tkey tval env2
-        | _, _ -> failwith "[env_extend] never"
+        | (_, _) -> failwith "[env_extend] never"
 
 
 let env_lookup key (env : I.env) = Assoc.get_exn ~eq:String.equal key env
@@ -37,11 +38,13 @@ let ret2string = function
 
 
 let stdenv =
-    [ ( "+"
-      , I.B_bin
-              (function
-                  | I.D (Ast.N x), I.D (Ast.N y) -> I.D (Ast.N (x +. y))
-                  | _ -> failwith "invalid") ) ]
+    [
+        ( "+",
+            I.B_bin
+                (function
+                    | (I.D (Ast.N x), I.D (Ast.N y)) -> I.D (Ast.N (x +. y))
+                    | _ -> failwith "invalid") );
+    ]
 
 
 let interpret (inst : Instruction.t) : string =
@@ -51,7 +54,9 @@ let interpret (inst : Instruction.t) : string =
             (inst : I.t)
             (env : I.env)
             (args : I.ret list)
-            (stacks : I.stack list) : I.ret =
+            (stacks : I.stack list)
+        : I.ret
+        =
         match inst with
             | Halt -> acc
             | Refer (name, next) ->
@@ -63,7 +68,11 @@ let interpret (inst : Instruction.t) : string =
                 aux (C fn) next env args stacks
             | Test (n1, n2) ->
                 let next =
-                    match acc with N -> n2 | C _ -> n1 | D _ -> n1 | B_bin _ -> n1
+                    match acc with
+                        | N -> n2
+                        | C _ -> n1
+                        | D _ -> n1
+                        | B_bin _ -> n1
                 in
                 aux acc next env args stacks
             | Assign (name, next) ->
