@@ -3,18 +3,15 @@
 A <del>R5RS</del> VM
 
 ```sh
-$ opam install ocamlbuild containers ppx_deriving # dep
-$ opam install merlin ocamlformat ocp-indent # dev dep
+$ opam install --deps-only .
 
-$ make # build
-$ ./main -h # usage
+$ make build
+$ ./_build/default/src/main.exe -h # usage
 
-$ echo "#f" | ./main -
+$ echo "#f" | ./_build/default/src/main.exe -
 $ #f
-$ echo "(+ (+ 1 2) 3)" | ./main -
+$ echo "(+ (+ 1 2) 3)" | ./_build/default/src/main.exe -
 $ 6.
-$ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./main -
+$ echo "(((call/cc (lambda (c) c)) (lambda (x) x)) 'HEY)" | ./_build/default/src/main.exe -
 $ HEY
-
-$ make test # run example
 ```

@@ -1,0 +1,8 @@
+(executable
+ (public_name schemer)
+ (name main)
+ (libraries containers)
+ (preprocess
+  (pps ppx_deriving.std))
+ (flags
+  (:standard -warn-error -a)))

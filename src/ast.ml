@@ -1,25 +1,25 @@
 type identifier = string [@@deriving show]
 
 type datum =
-    | B of bool
-    | N of float
-    | S of string
-    (* symbol *)
-    | Q of string
-    | L of datum list
+  | B of bool
+  | N of float
+  | S of string
+  (* symbol *)
+  | Q of string
+  | L of datum list
 [@@deriving show]
 
 type expression =
-    | Bool of bool
-    | Num of float
-    | Str of string
-    | Symbol of string
-    | Quote of datum
-    | Lambda of identifier list * expression
-    | If of expression * expression * expression
-    | Set of identifier * expression
-    | CallCC of expression
-    | Application of expression * expression list
+  | Bool of bool
+  | Num of float
+  | Str of string
+  | Symbol of string
+  | Quote of datum
+  | Lambda of identifier list * expression
+  | If of expression * expression * expression
+  | Set of identifier * expression
+  | CallCC of expression
+  | Application of expression * expression list
 [@@deriving show]
 
 type t = expression list [@@deriving show]
