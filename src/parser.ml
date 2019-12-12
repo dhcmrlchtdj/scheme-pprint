@@ -1,5 +1,6 @@
 open! Containers
 open Ast
+module T = Token
 
 let datum2expr (datum : Ast.datum) : Ast.expression =
   let rec aux = function
@@ -28,50 +29,44 @@ let datum2expr (datum : Ast.datum) : Ast.expression =
   in
   aux datum
 
-let tokens2datums (tokens : Token.t list) : Ast.datum list =
-  Token.(
-    let rec aux (acc : Ast.datum list) (t : Token.t list) =
+let tokens2datums (tokens : T.t list) : Ast.datum list =
+  let rec aux (acc : Ast.datum list) (t : T.t list) =
+    match tokens2datum t with
+      | Ok (Some datum, tt) -> aux (datum :: acc) tt
+      | Ok (None, []) -> Ok (List.rev acc)
+      | Ok (None, tt) -> aux acc tt
+      | Error s -> Error s
+  and tokens2datum = function
+    | [] -> Ok (None, [])
+    | T.COMMENT _ :: t -> Ok (None, t)
+    | T.BOOL x :: t -> Ok (Some (B x), t)
+    | T.NUM x :: t -> Ok (Some (N x), t)
+    | T.STR x :: t -> Ok (Some (S x), t)
+    | T.SYMBOL x :: t -> Ok (Some (Q x), t)
+    | T.QUOTE :: t -> read_quoted t
+    | T.LEFT_PAREN :: t -> read_list T.RIGHT_PAREN [] t
+    | T.RIGHT_PAREN :: _ -> Error "[tokens2datum] unexpected ')'"
+    | T.LEFT_BRACKET :: t -> read_list T.RIGHT_BRACKET [] t
+    | T.RIGHT_BRACKET :: _ -> Error "[tokens2datum] unexpected ']'"
+  and read_quoted t =
+    match tokens2datum t with
+      | Ok (Some datum, tt) -> Ok (Some (L [ Q "quote"; datum ]), tt)
+      | _ -> Error "[read_quoted] expect datum"
+  and read_list (p : T.t) (acc : Ast.datum list) = function
+    | h :: t when T.equal h p -> Ok (Some (L (List.rev acc)), t)
+    | t -> (
       match tokens2datum t with
-        | Ok (Some datum, tt) -> aux (datum :: acc) tt
-        | Ok (None, []) -> Ok (List.rev acc)
-        | Ok (None, tt) -> aux acc tt
-        | Error s -> Error s
-    and tokens2datum = function
-      | [] -> Ok (None, [])
-      | COMMENT _ :: t -> Ok (None, t)
-      | BOOL x :: t -> Ok (Some (B x), t)
-      | NUM x :: t -> Ok (Some (N x), t)
-      | STR x :: t -> Ok (Some (S x), t)
-      | SYMBOL x :: t -> Ok (Some (Q x), t)
-      | QUOTE :: t -> read_quoted t
-      | LEFT_PAREN :: t -> read_list_paren [] t
-      | RIGHT_PAREN :: _ -> Error "[tokens2datum] unexpected ')'"
-      | LEFT_BRACKET :: t -> read_list_bracket [] t
-      | RIGHT_BRACKET :: _ -> Error "[tokens2datum] unexpected ']'"
-    and read_quoted t =
-      match tokens2datum t with
-        | Ok (Some datum, tt) -> Ok (Some (L [ Q "quote"; datum ]), tt)
-        | _ -> Error "[read_quoted] expect datum"
-    and read_list_paren acc = function
-      | RIGHT_PAREN :: tt -> Ok (Some (L (List.rev acc)), tt)
-      | t -> (
-        match tokens2datum t with
-          | Ok (Some datum, tt) -> read_list_paren (datum :: acc) tt
-          | _ -> Error "[read_list] expect datum"
-      )
-    and read_list_bracket acc = function
-      | RIGHT_BRACKET :: tt -> Ok (Some (L (List.rev acc)), tt)
-      | t -> (
-        match tokens2datum t with
-          | Ok (Some datum, tt) -> read_list_bracket (datum :: acc) tt
-          | _ -> Error "[read_list] expect datum"
-      )
-    in
-    match aux [] tokens with
-      | Ok s -> s
-      | Error s -> failwith s)
+        | Ok (Some datum, tt) -> read_list p (datum :: acc) tt
+        | Ok (None, []) -> Error "[read_list] expect datum"
+        | Ok (None, tt) -> read_list p acc tt
+        | Error s -> Error ("[read_list] expect datum | " ^ s)
+    )
+  in
+  match aux [] tokens with
+    | Ok s -> s
+    | Error s -> failwith s
 
-let parse (tokens : Token.t list) : Ast.t =
+let parse (tokens : T.t list) : Ast.t =
   let datums = tokens2datums tokens in
   let exprs = List.map datum2expr datums in
   exprs

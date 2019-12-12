@@ -9,4 +9,4 @@ type t =
   | STR of string
   | SYMBOL of string
   | COMMENT of string
-[@@deriving show]
+[@@deriving show, eq]
