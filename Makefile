@@ -1,7 +1,7 @@
 SHELL := bash
 
 build:
-	opam exec dune -- build @install --profile=dev
+	opam exec dune -- build @all --profile=dev
 
 release:
 	opam exec dune -- build @install --profile=release
