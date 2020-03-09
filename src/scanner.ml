@@ -84,7 +84,7 @@ let scan (src : string) : Token.t list =
     and scan_num (acc : char list) = function
       | h :: t when Parse.is_num h -> scan_num (h :: acc) t
       | t ->
-        let x = acc |> List.rev |> String.of_list |> Float.of_string in
+        let x = acc |> List.rev |> String.of_list |> Float.of_string_exn in
         Ok (x, t)
     and scan_symbol (acc : char list) = function
       | h :: t when is_symbol_subsequent h -> scan_symbol (h :: acc) t

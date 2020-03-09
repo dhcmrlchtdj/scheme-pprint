@@ -3,6 +3,4 @@
  (name main)
  (libraries containers)
  (preprocess
-  (pps ppx_deriving.std))
- (flags
-  (:standard -warn-error -a)))
+  (pps ppx_deriving.std)))

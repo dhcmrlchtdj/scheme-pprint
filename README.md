@@ -3,7 +3,7 @@
 A <del>R5RS</del> VM
 
 ```sh
-$ opam install --deps-only .
+$ make dev
 
 $ make build
 $ ./_build/default/src/main.exe -h # usage
