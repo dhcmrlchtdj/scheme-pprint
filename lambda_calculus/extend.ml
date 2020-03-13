@@ -1,8 +1,8 @@
 type types =
+  (* | `Int *)
+  (* | `Float *)
+  (* | `String *)
   [ `Bool
-  | `Int
-  | `Float
-  | `String
   | `Arrow of types * types
   | `Unit
   | `UserDef of string
@@ -13,7 +13,8 @@ type types =
   ]
 
 type terms =
-  [ `Var of string
+  [ `Bool of bool
+  | `Var of string
   | `Abs of string * types * terms
   | `App of terms * terms
   | `Unit
@@ -34,7 +35,8 @@ type terms =
   ]
 
 type values =
-  [ `Abs of string * types * terms
+  [ `Bool of bool
+  | `Abs of string * types * terms
   | `Unit
   | `Tuple of values list
   | `Record of (string * values) list
