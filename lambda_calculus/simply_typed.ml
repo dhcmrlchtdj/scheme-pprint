@@ -93,13 +93,13 @@ let%expect_test "eval" =
   let _ =
     let* s = eval True in
     Printf.printf "%s" s;
-    [%expect {| x |}];
+    [%expect {| (true:bool) |}];
     let* s = eval (If (False, True, False)) in
     Printf.printf "%s" s;
-    [%expect {| x |}];
+    [%expect {| (false:bool) |}];
     let* s = eval (Abs ("x", Tbool, Var "x")) in
     Printf.printf "%s" s;
-    [%expect {| x |}];
+    [%expect {| (λ(x:bool).x:(bool -> bool)) |}];
     Ok ()
   in
   ()
