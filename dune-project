@@ -11,11 +11,13 @@
 
 (package
  (name schemer)
- (synopsis "Blueprint for ocaml project")
+ (synopsis "Interpreter")
  (depends
   (containers           (and (>= 2.7)))
   (ppx_deriving         (and :build (>= 4.4)))
   (dune                 (and :build (>= 2.0.0)))
+  (ppx_expect           (and :with-test (>= v0.13.0)))
+  (bisect_ppx           (and :with-test (>= 1.4.2)))
   (ocamlformat          (and :dev (>= 0.12)))
   ))
 
