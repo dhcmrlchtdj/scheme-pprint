@@ -23,7 +23,7 @@ type terms =
   | `Tuple of terms list
   | `TupleItem of terms * terms
   | `Record of (string * terms) list
-  | `RecordItem of terms * terms
+  | `RecordItem of terms * string
   | `Tagging of string * string * types
   | `Case of terms * (string * string * terms) list
   | `Fix of terms
