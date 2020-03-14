@@ -29,13 +29,14 @@ type terms =
   ]
 [@@deriving show]
 
-(* type values = *)
-(*   [ `Abs of string * types * terms *)
-(*   | `Record of (string * terms) list *)
-(*   ] *)
-(* [@@deriving show] *)
+type values =
+  [ `Bool of bool
+  | `Abs of string * types * terms
+  | `Record of (string * values) list
+  ]
+[@@deriving show]
 
-type values_context = (string * terms) list
+type values_context = (string * values) list
 
 type types_context = (string * types) list
 
@@ -94,7 +95,7 @@ let rec typeof (ctx : types_context) : terms -> (types, string) result
 
 (* --- *)
 
-let rec valueof (ctx : values_context) : terms -> (terms, string) result
+let rec valueof (ctx : values_context) : terms -> (values, string) result
   = function
   | `Bool x -> Ok (`Bool x)
   | `Var name ->
@@ -132,7 +133,7 @@ let eval expr =
   let* t = typeof [] expr in
   let* v = valueof [] expr in
   let ts = show_types t in
-  let vs = show_terms v in
+  let vs = show_values v in
   let s = Printf.sprintf "type = %s\nvalues = %s" ts vs in
   Ok s
 
@@ -150,7 +151,6 @@ let eval expr =
       [%expect {|
         type = `Bool
         values = `Bool (true) |}];
-
       Ok ()
     in
     ()

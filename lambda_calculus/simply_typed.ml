@@ -72,7 +72,7 @@ let rec valueof ctx = function
       | Some l -> l
       | None -> Var x
   )
-  | Abs (x, t, m) -> Abs (x, t, valueof ctx m)
+  | Abs (x, t, m) -> Abs (x, t, m)
   | App (m, n) -> (
     let m' = valueof ctx m in
     let n' = valueof ctx n in

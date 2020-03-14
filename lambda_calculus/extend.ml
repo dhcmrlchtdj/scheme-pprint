@@ -1,7 +1,4 @@
 type types =
-  (* | `Int *)
-  (* | `Float *)
-  (* | `String *)
   [ `Bool
   | `Arrow of types * types
   | `Unit
